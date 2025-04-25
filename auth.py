@@ -4,6 +4,7 @@ import pyotp
 import csv
 import secrets
 from flask_mail import Mail, Message
+from flask_bcrypt import Bcrypt
 
 # Database shall go here
 
@@ -12,9 +13,10 @@ from flask_mail import Mail, Message
 #Flask Set Up for Auth
 app = Flask(__name__)
 
+bcrypt = Bcrypt(app)
 
 
-#Setting up email ( see if this is supposed to go here or no)
+#Setting up email 
 flask-mail.MAIL_SERVER = 'smtp.gmail.com'
 flask-mail.MAIL_PORT = 587
 flask-mail.MAIL_USE_TLS = True
@@ -49,16 +51,26 @@ def registration():
 def home():
      return render_template('login.html')
 
+#check if the otp entered is valid
+@app.route('/otp_check', methods=['GET', 'POST'])
+def check_otp():
+      user_otp = request.form.get('otp')
+
+      if user_otp == session.get('otp'):
+            return redirect(url_for('new_password'))
+      else:
+            return 'Incorrect OTP. Please Try Again.'
 
 
+#new page that allows users to set up a new password:
+@app.route('/new_password')
+def create_password():
+         new_password = request.form.get('new_password')
 
-     
-    
+         hashed_password = bcrypt.generate_password_hash('password').decode('utf-8')
 
-
-# Registration route: allows users to register by setting up a username, OTP and recovery code
-
-
+         is_valid = bcrypt.check_password_hash(hashed_password, 'password')
+         
 # POST requests for login- checks for OTP instead of a password and redirects user to change it
 @app.route('/login', methods=['POST'])
 def login():
