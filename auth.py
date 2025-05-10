@@ -90,12 +90,7 @@ def login():
         else:
                 return 'Invalid username or password.Please try again.'
 
-# GET requests for search
-@app.route('/search', methods=['GET'])
-def search():
-    query= request.args.get('query')
-# Perform search based on the query
-    return f"Search results for: {query}"
+
 
 # User is required to change their password
 
