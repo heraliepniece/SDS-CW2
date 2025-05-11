@@ -45,6 +45,7 @@ def otp_email(user_email, otp):
 def registration():
     if request.method == 'POST':
         user_email= request.form.get('email')
+        session['email'] = user_email
         otp = generate_OTP()
         otp_email(user_email,otp)
     return render_template('register.html')   
@@ -71,7 +72,7 @@ def check_otp():
 def create_password():
          if request.method == 'POST':
             new_password = request.form.get('new_password')
-
+            email = session.get('email')
             hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
 
             return 'Your password has been set!'
@@ -82,20 +83,14 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        valid_username = ""
-        valid_password = ""
+        email = request.form.get('username')
+        valid_password = request.form.get('password')
         
-        if username == valid_username and password == valid_password:
+        if username == email and password == valid_password:
             return f'Welcome! Login succesful.'
         else:
                 return 'Invalid username or password.Please try again.'
 
-
-
-# User is required to change their password
-
-
-# Password recovery route
 
 
 
