@@ -33,19 +33,20 @@ def register_routes(app, db_session):
             msg.body =f"Your one-time password is: {otp}\n This password will expire in 10 minutes."
             mail.send(msg)
 
-      #User Registration with OTP
-      @app.route('/registration', methods=['GET', 'POST'])
-      def registration():
-            if request.method == 'POST':
-                  user_email= request.form.get('email')
-                  session['email'] = user_email
-                  otp = generate_OTP()
-                  otp_email(user_email,otp)
-                  return redirect(url_for('check_otp'))
-            return render_template('register.html')   
+#User Registration with OTP
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    if request.method == 'POST':
+        user_email= request.form.get('email')
+        session['email'] = user_email
+        otp = generate_OTP()
+        otp_email(user_email,otp)
+        return redirect(url_for('otp_check'))
+    return render_template('register.html')   \
+    
 
-      @app.route('/otp_check', methods=['GET', 'POST'])
-      def check_otp():
+@app.route('/otp_check', methods=['GET', 'POST'])
+def check_otp():
             if request.method == 'POST':
                   user_otp = request.form['otp']
                   if user_otp == session.get('otp'):
@@ -53,8 +54,8 @@ def register_routes(app, db_session):
                   return "Invalid OTP. Try again."
             return render_template('otp_check.html')
 
-      @app.route('/role_select', methods=['GET', 'POST'])
-      def role_select():
+@app.route('/role_select', methods=['GET', 'POST'])
+def role_select():
             if request.method == 'POST':
                   role_selection = request.form.get('role_select')
                   session['role_select'] = role_selection
@@ -64,14 +65,14 @@ def register_routes(app, db_session):
                         return redirect(url_for('pm_login'))
             return render_template('role_select.html')
 
-      #Home route for login form
-      @app.route('/')
-      def home():
+#Home route for login form
+@app.route('/')
+def home():
             return render_template('login.html')
 
       #check if the otp entered is valid
-      @app.route('/otp_check', methods=['GET', 'POST'])
-      def check_otp():
+@app.route('/otp_check', methods=['GET', 'POST'])
+def check_otp():
             user_otp = request.form.get('otp')
 
             if user_otp == session.get('otp'):
@@ -80,42 +81,45 @@ def register_routes(app, db_session):
                   return 'Incorrect OTP. Please Try Again.'
 
 
-      #new page that allows users to set up a new password:
-      @app.route('/new_password', methods=[ 'GET', 'POST'])
-      def create_password():
-            if request.method == 'POST':
-                  new_password = request.form.get('new_password')
-                  email = session.get('email')
-                  hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+#new page that allows users to set up a new password:
+@app.route('/new_password', methods=[ 'GET', 'POST'])
+def create_password():
+         if request.method == 'POST':
+            new_password = request.form.get('new_password')
+            email = session.get('email')
+            hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        
+            return redirect(url_for('tm_login'))
 
-                  return 'Your password has been set!'
+         return render_template('new_password.html')
 
-      # POST requests for login- checks for OTP instead of a password and redirects user to change it
-      @app.route('/tm_login', methods=['POST'])
-      def tm_login():
-            if request.method == 'POST':
-                  username = request.form.get('username')
-                  password = request.form.get('password')
+# POST requests for login- checks for OTP instead of a password and redirects user to change it
+@app.route('/tm_login', methods=['GET', 'POST'])
+def tm_login():
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-                  email = request.form.get('username')
-                  valid_password = request.form.get('password')
-            
-                  if username == email and password == valid_password:
-                        return f'Welcome! Login succesful.'
-                  else:
-                        return 'Invalid username or password.Please try again.'
+            email = request.form.get('username')
+            valid_password = request.form.get('password')
+        
+        if username == email and password == valid_password:
+            return f'Welcome Team Member! Login succesful.'
+        else:
+                return 'Invalid username or password.Please try again.'
+        
 
-      @app.route('/pm_login', methods=['POST'])
-      def pm_login():
-            if request.method == 'POST':
-                  username = request.form.get('username')
-                  password = request.form.get('password')
+@app.route('/pm_login', methods=['GET','POST'])
+def pm_login():
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-                  if username == projectmanager and password == eyespy:
-                        return f'Welcome Project Manager! Login succesful.'
-                  else:
-                        return 'Invalid username or password. Please try again.'
-
+        if username == projectmanager and password == eyespy:
+            return f'Welcome Project Manager! Login succesful.'
+        else:
+                return 'Invalid username or password. Please try again.'
+        
 
 
 
