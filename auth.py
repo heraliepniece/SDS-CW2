@@ -50,6 +50,13 @@ def registration():
         otp_email(user_email,otp)
     return render_template('register.html')   
 
+@app.route('/role_select', methods=['GET', 'POST'])
+def role_select():
+      if request.method == 'POST':
+            role_selection = request.form.get('role_select')
+            session['role_select'] = role_selection
+            return redirect(url_for('login'))
+      return render_template('role_select.html')
 
 #Home route for login form
 @app.route('/')
@@ -90,9 +97,6 @@ def login():
             return f'Welcome! Login succesful.'
         else:
                 return 'Invalid username or password.Please try again.'
-
-
-
 
 
 if __name__=='__main__':
