@@ -91,22 +91,22 @@ def create_password():
 @app.route('/tm_login', methods=['POST'])
 def tm_login():
         if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-        email = request.form.get('username')
-        valid_password = request.form.get('password')
+            email = request.form.get('username')
+            valid_password = request.form.get('password')
         
         if username == email and password == valid_password:
-            return f'Welcome! Login succesful.'
+            return f'Welcome Team Member! Login succesful.'
         else:
                 return 'Invalid username or password.Please try again.'
 
 @app.route('/pm_login', methods=['POST'])
 def pm_login():
         if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+            username = request.form.get('username')
+            password = request.form.get('password')
 
         if username == projectmanager and password == eyespy:
             return f'Welcome Project Manager! Login succesful.'
