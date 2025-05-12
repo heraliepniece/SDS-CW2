@@ -48,7 +48,9 @@ def registration():
         session['email'] = user_email
         otp = generate_OTP()
         otp_email(user_email,otp)
-    return render_template('register.html')   
+        return redirect(url_for('otp_check'))
+    return render_template('register.html')   \
+    
 
 @app.route('/role_select', methods=['GET', 'POST'])
 def role_select():
@@ -84,11 +86,13 @@ def create_password():
             new_password = request.form.get('new_password')
             email = session.get('email')
             hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        
+            return redirect(url_for('tm_login'))
 
-            return 'Your password has been set!'
+         return render_template('new_password.html')
 
 # POST requests for login- checks for OTP instead of a password and redirects user to change it
-@app.route('/tm_login', methods=['POST'])
+@app.route('/tm_login', methods=['GET', 'POST'])
 def tm_login():
         if request.method == 'POST':
             username = request.form.get('username')
@@ -101,8 +105,9 @@ def tm_login():
             return f'Welcome Team Member! Login succesful.'
         else:
                 return 'Invalid username or password.Please try again.'
+        
 
-@app.route('/pm_login', methods=['POST'])
+@app.route('/pm_login', methods=['GET','POST'])
 def pm_login():
         if request.method == 'POST':
             username = request.form.get('username')
@@ -112,7 +117,7 @@ def pm_login():
             return f'Welcome Project Manager! Login succesful.'
         else:
                 return 'Invalid username or password. Please try again.'
-
+        
 
 if __name__=='__main__':
      app.run(debug=True)
