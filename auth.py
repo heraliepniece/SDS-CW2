@@ -55,7 +55,10 @@ def role_select():
       if request.method == 'POST':
             role_selection = request.form.get('role_select')
             session['role_select'] = role_selection
-            return redirect(url_for('login'))
+            if role == 'team_member':
+                  return redirect(url_for('tm_login'))
+            elif role == 'project_manager':
+                  return redirect(url_for('pm_login'))
       return render_template('role_select.html')
 
 #Home route for login form
@@ -85,8 +88,9 @@ def create_password():
             return 'Your password has been set!'
 
 # POST requests for login- checks for OTP instead of a password and redirects user to change it
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/tm_login', methods=['POST'])
+def tm_login():
+        if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
@@ -97,6 +101,17 @@ def login():
             return f'Welcome! Login succesful.'
         else:
                 return 'Invalid username or password.Please try again.'
+
+@app.route('/pm_login', methods=['POST'])
+def pm_login():
+        if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == projectmanager and password == eyespy:
+            return f'Welcome Project Manager! Login succesful.'
+        else:
+                return 'Invalid username or password. Please try again.'
 
 
 if __name__=='__main__':
