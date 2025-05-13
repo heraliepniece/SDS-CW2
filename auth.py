@@ -59,6 +59,8 @@ def register_routes(app, db_session):
       def role_select():
             if request.method == 'POST':
                   role = request.form.get('role_select')
+                  print("Selected role:", role)
+
                   session['role_select'] = role
                   if role == 'team_member':
                         return redirect(url_for('tm_login'))
@@ -98,7 +100,8 @@ def register_routes(app, db_session):
                         return f'Welcome Team Member! Login succesful.'
                   else:
                         return 'Invalid username or password. Please try again.'
-            return render_template('login.html')
+                  
+            return render_template('tm_login.html')
         
 
       @app.route('/pm_login', methods=['GET','POST'])
@@ -112,7 +115,7 @@ def register_routes(app, db_session):
                         return f'Welcome Project Manager! Login succesful.'
                   else:
                         return 'Invalid username or password. Please try again.'
-            
+            return render_template('pm_login.html')
 
 
 
