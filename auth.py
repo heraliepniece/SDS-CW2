@@ -100,7 +100,6 @@ def register_routes(app, db_session):
             return render_template('role_select.html')
 
 
-
       #POST requests for login- checks for OTP instead of a password and redirects user to change it
       @app.route('/tm_login', methods=['GET', 'POST'])
       def tm_login():
