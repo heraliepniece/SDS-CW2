@@ -1,8 +1,9 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for
 from flask_mail import Mail, Message
 from flask_bcrypt import Bcrypt
 import secrets
-from tables import User
+from tables import User, Task
+from flask import session
 
 
 #Flask Set Up for Auth
@@ -110,6 +111,7 @@ def register_routes(app, db_session):
                   user = db_session.query(User).filter_by(username=username, role = 'team_member').first()
             
                   if user and bcrypt.check_password_hash(user.password, password):
+                        session['user_id'] = user.id
                         return redirect(url_for('tm_dashboard'))
                   else:
                         return 'Invalid username or password.Please try again.'
@@ -128,9 +130,53 @@ def register_routes(app, db_session):
                         return 'Invalid username or password. Please try again.'
             return render_template('pm_login.html')
       
-      @app.route('/pm_dashboard')
+      @app.route('/pm_dashboard', methods= ['GET', 'POST'])
       def pm_dashboard():
-            return render_template('pm_dashboard.html')
+            if request.method == 'POST':
+                  title = request.form.get('task')
+                  assigned_to = request.form.get('assigned_to')
+
+                  user = db_session.query(User).filter_by(username=assigned_to, role='team_member').first()
+
+                  if user:
+                        new_task = Task(title=title,
+                        description="Task assigned by PM", 
+                        status="Not Started",  #Default status
+                        assigned_to=user.id)
+                        db_session.add(new_task)
+                        db_session.commit()
+
+                  #redirect back to the pm dashboard
+                  return redirect(url_for('pm_dashboard'))
+
+            team_members = db_session.query(User).filter_by(role='team_member').all()
+            tasks = db_session.query(Task).all()
+    
+            return render_template('pm_dashboard.html', team_members=team_members, tasks=tasks)
+
+      @app.route('/dashboard')
+      def tm_dashboard():
+            if 'user_id' not in session:
+                  return redirect(url_for('tm_login'))
+
+            user = db_session.query(User).get(session['user_id'])
+            tasks = db_session.query(Task).filter_by(assigned_to=user.id).all()
+            return render_template('tm_dashboard.html', user=user, tasks=tasks)
+      
+      @app.route('/update_task_status/<int:task_id>', methods=['POST'])
+      def update_task_status(task_id):
+            new_status = request.form.get('status')
+    
+            task = db_session.query(Task).get(task_id)
+            if task:
+                  task.status = new_status
+                  db_session.commit()
+
+            return redirect(url_for('tm_dashboard'))
+
+
+      
+
 
 
 

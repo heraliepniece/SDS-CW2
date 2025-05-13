@@ -4,12 +4,15 @@ body {
     background-color: #58786e;
     margin: 0;
     padding: 0;
+    padding: 50px;
+    text-align: center;
+    color: #fefefe;
 }
 
 /* Header style */
 header {
     background-color: #35464b;
-    color: white;
+    color: #cad1c5;
     padding: 20px;
     text-align: center;
 }
@@ -23,13 +26,13 @@ nav {
 }
 
 nav a {
-    color: white;
+    color: #cad1c5;
     text-decoration: none;
     padding: 8px 16px;
 }
 
 nav a:hover {
-    background-color: #cad1c5;
+    background-color: #88a98b;
     border-radius: 4px;
 }
 
@@ -39,7 +42,8 @@ main, .container {
 }
 
 section {
-    background-color: #fefefe;
+    background-color: #35464b;
+    color: #cad1c5;
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 6px;
@@ -48,6 +52,12 @@ section {
 
 h1, h2 {
     margin-top: 0;
+    background-color: #88a98b;
+    color: #fefefe;
+    display: inline-block;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Forms */
@@ -59,6 +69,9 @@ label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    background-color: #58786e;
+    color: #fefefe;
+
 }
 
 input[type="text"],
@@ -67,14 +80,16 @@ select {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #fefefe;
+    border: 1px solid #cad1c5;
+    background-color: #fefefe;
+    color: #35464b;
     border-radius: 4px;
 }
 
 /* Buttons */
 button {
-    background-color: #58786e;
-    color: white;
+    background-color: #88a98b;
+    color: #fefefe;
     border: none;
     padding: 10px 16px;
     cursor: pointer;
@@ -89,16 +104,18 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
+    background-color: #fefefe;
     margin-top: 10px;
 }
 
 table, th, td {
-    border: 1px solid #fefefe;
+    border: 1px solid #cad1c5;
 }
 
 th, td {
     padding: 10px;
     text-align: left;
+    background-color: #fefefe;
 }
 
 th {
@@ -107,10 +124,11 @@ th {
 
 /* Links */
 a {
-    color: #88a98b;
+    color: #cad1c5;
     text-decoration: none;
 }
 
 a:hover {
     text-decoration: underline;
+    background-color: #fefefe;
 }
