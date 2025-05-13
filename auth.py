@@ -55,14 +55,14 @@ def register_routes(app, db_session):
                   session['email'] = user_email
                   otp = generate_OTP()
                   otp_email(user_email,otp)
-                  return redirect(url_for('otp_check'))
+                  return redirect(url_for('check_otp'))
             return render_template('registration.html')   
 
 
       #check if the otp entered is valid
-      @app.route('/otp_check', methods=['GET', 'POST'])
+      @app.route('/check_otp', methods=['GET', 'POST'])
       def check_otp():
-            if request.methof =="POST":
+            if request.method =="POST":
                   user_otp = request.form.get('otp')
                   if user_otp == session.get('otp'):
                         return redirect(url_for('new_password'))
