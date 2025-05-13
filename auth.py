@@ -123,9 +123,8 @@ def register_routes(app, db_session):
                   password = request.form.get('password')
 
 
-
                   if username == "projectmanager" and password == "eyespy":
-                        return f'Welcome Project Manager! Login succesful.'
+                        return redirect(url_for('pm_dashboard'))
                   else:
                         return 'Invalid username or password. Please try again.'
             return render_template('pm_login.html')
