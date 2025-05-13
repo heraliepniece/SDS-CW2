@@ -111,7 +111,7 @@ def register_routes(app, db_session):
                   user = db_session.query(User).filter_by(username=username, role = 'team_member').first()
             
                   if user and bcrypt.check_password_hash(user.password, password):
-                        return f'Welcome Team Member! Login succesful.'
+                        return redirect(url_for('tm_dashboard'))
                   else:
                         return 'Invalid username or password.Please try again.'
             return render_template('tm_login.html')    
