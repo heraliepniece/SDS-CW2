@@ -129,6 +129,11 @@ def register_routes(app, db_session):
                   else:
                         return 'Invalid username or password. Please try again.'
             return render_template('pm_login.html')
+      
+      @app.route('/pm_dashboard')
+      def pm_dashboard():
+            return render_template('pm_dashboard.html')
+
 
 
 

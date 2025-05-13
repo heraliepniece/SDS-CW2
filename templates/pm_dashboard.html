@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Manager Dashboard</title>
+</head>
+<body>
+
+    <header>
+        <h1>Project Manager Dashboard</h1>
+    </header>
+
+    <nav>
+        <a href="project-status">Project Status</a>
+        <a href="assign-tasks">Assign Tasks</a>
+        <a href="manage-team">Manage Team</a>
+        <a href="activity-logs">Activity Logs</a>
+    </nav>
+
+    <main>
+        <!-- Section 1: Project Status and Team Performance -->
+        <section id="project-status">
+            <h2>Project Status & Team Performance</h2>
+            <p>Track the current progress of your projects and evaluate team performance.</p>
+            <!-- Placeholder table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Team Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Website Redesign</td>
+                        <td>In Progress</td>
+                        <td>70%</td>
+                        <td>Excellent</td>
+                    </tr>
+                    <!-- Add more rows dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 2: Create and Assign Tasks -->
+        <section id="assign-tasks">
+            <h2>Create and Assign Tasks</h2>
+            <form action="/create_task" method="post">
+                <label for="task">Task:</label><br>
+                <input type="text" id="task" name="task" required><br><br>
+
+                <label for="assigned_to">Assign To:</label><br>
+                <select id="assigned_to" name="assigned_to">
+                    <option value="user1">Team Member 1</option>
+                    <option value="user2">Team Member 2</option>
+                    <!-- Dynamically populate -->
+                </select><br><br>
+
+                <button type="submit">Create Task</button>
+            </form>
+        </section>
+
+        <!-- Section 3: Manage Team Members -->
+        <section id="manage-team">
+            <h2>Manage Team Members</h2>
+            <p>Add, update, or remove team members.</p>
+            <button onclick="window.location.href='/add_member'">Add New Member</button><br><br>
+            <!-- Placeholder table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>team_user_01</td>
+                        <td>Developer</td>
+                        <td>
+                            <button onclick="window.location.href='/edit_member/1'">Edit</button>
+                            <button onclick="window.location.href='/delete_member/1'">Delete</button>
+                        </td>
+                    </tr>
+                    <!-- More team members -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 4: Activity Logs -->
+        <section id="activity-logs">
+            <h2>Team Activity Logs</h2>
+            <p>Monitor recent activities by team members.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Activity</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>team_user_02</td>
+                        <td>Submitted task update</td>
+                        <td>2025-05-12 14:30</td>
+                    </tr>
+                    <!-- More log entries -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+</body>
+</html>
