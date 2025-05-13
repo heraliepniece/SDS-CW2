@@ -35,7 +35,7 @@ def register_routes(app, db_session):
       app.config['MAIL_USE_TLS'] = True
       app.config['MAIL_USE_SSL'] = False
       app.config['MAIL_USERNAME'] = 'hera.liepniece@gmail.com'
-      app.config['MAIL_PASSWORD'] = 'jlch tsib qadb nf'
+      app.config['MAIL_PASSWORD'] = 'tdtq zpwq dpdb ywex'
       app.config['MAIL_DEFAULT_SENDER'] = 'hera.liepniece@gmail.com'
       
       mail.init_app(app)
