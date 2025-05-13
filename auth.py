@@ -60,12 +60,12 @@ def register_routes(app, db_session):
 
 
       #check if the otp entered is valid
-      @app.route('/check_otp', methods=['GET', 'POST'])
+      @app.route('/otp_check', methods=['GET', 'POST'])
       def check_otp():
             if request.method =="POST":
                   user_otp = request.form.get('otp')
                   if user_otp == session.get('otp'):
-                        return redirect(url_for('new_password'))
+                        return redirect(url_for('create_password'))
                   else:
                         return 'Incorrect OTP. Please Try Again.'
             return render_template('otp_check.html')
@@ -85,7 +85,6 @@ def register_routes(app, db_session):
                   db_session.commit()
                   return redirect(url_for('tm_login'))
             
-
             return render_template('new_password.html')  
 
 
