@@ -9,8 +9,23 @@ from tables import User
 bcrypt = Bcrypt()
 mail = Mail()
 
-#Setting up email 
+#Generates OTP
+def generate_OTP():
+      otp = secrets.randbelow(900000) 
+      session['otp'] = str(otp)
+      return otp
+
+
+#Sends OTP email     
+def otp_email(user_email, otp):
+      msg = Message("One-Time Password for Registration", recipients=[user_email])
+      msg.body =f"Your one-time password is: {otp}\n This password will expire in 10 minutes."
+      mail.send(msg)
+
+
+#Route registration
 def register_routes(app, db_session):
+      #Setting up email 
       app.config['MAIL_SERVER'] = 'smtp.gmail.com'
       app.config['MAIL_PORT'] = 587
       app.config['MAIL_USE_TLS'] = True
@@ -18,108 +33,99 @@ def register_routes(app, db_session):
       app.config['MAIL_USERNAME'] = 'hera.liepniece@gmail.com'
       app.config['MAIL_PASSWORD'] = 'jlch tsib qadb nf'
       app.config['MAIL_DEFAULT_SENDER'] = 'hera.liepniece@gmail.com'
+      
       mail.init_app(app)
       bcrypt.init_app(app)
 
 
-      def generate_OTP():
-            otp = secrets.randbelow(900000) 
-            session['otp'] = str(otp)
-            return otp
+      #Home route for login form
+      @app.route('/')
+      def home():
+            return render_template('role_select.html')   
 
-      
-      def otp_email(user_email, otp):
-            msg = Message("One-Time Password for Registration", recipients=[user_email])
-            msg.body =f"Your one-time password is: {otp}\n This password will expire in 10 minutes."
-            mail.send(msg)
-
-#User Registration with OTP
-@app.route('/registration', methods=['GET', 'POST'])
-def registration():
-    if request.method == 'POST':
-        user_email= request.form.get('email')
-        session['email'] = user_email
-        otp = generate_OTP()
-        otp_email(user_email,otp)
-        return redirect(url_for('otp_check'))
-    return render_template('registration.html')   
-    
-
-@app.route('/otp_check', methods=['GET', 'POST'])
-def check_otp():
+      #User Registration with OTP
+      @app.route('/registration', methods=['GET', 'POST'])
+      def registration():
             if request.method == 'POST':
-                  user_otp = request.form['otp']
+                  user_email= request.form.get('email')
+                  session['email'] = user_email
+                  otp = generate_OTP()
+                  otp_email(user_email,otp)
+                  return redirect(url_for('otp_check'))
+            return render_template('registration.html')   
+
+
+      #check if the otp entered is valid
+      @app.route('/otp_check', methods=['GET', 'POST'])
+      def check_otp():
+            if request.methof =="POST":
+                  user_otp = request.form.get('otp')
                   if user_otp == session.get('otp'):
-                        return redirect(url_for('create_password'))
-                  return "Invalid OTP. Try again."
+                        return redirect(url_for('new_password'))
+                  else:
+                        return 'Incorrect OTP. Please Try Again.'
             return render_template('otp_check.html')
 
-@app.route('/role_select', methods=['GET', 'POST'])
-def role_select():
+
+      #new page that allows users to set up a new password:
+      @app.route('/new_password', methods=[ 'GET', 'POST'])
+      def create_password():
+            if request.method == 'POST':
+                  new_password = request.form.get('new_password')
+                  username = session.get('email')
+                  role = session.get('role_select')
+                  hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+            
+                  user = User(username=username, password = hashed_password, role = role)
+                  db_session.add(user)
+                  db_session.commit()
+                  return redirect(url_for('tm_login'))
+            
+
+            return render_template('new_password.html')  
+
+
+      @app.route('/role_select', methods=['GET', 'POST'])
+      def role_select():
             if request.method == 'POST':
                   role_selection = request.form.get('role_select')
                   session['role_select'] = role_selection
-                  if role == 'team_member':
+                  if role_selection == 'team_member':
                         return redirect(url_for('tm_login'))
-                  elif role == 'project_manager':
+                  elif role_selection == 'project_manager':
                         return redirect(url_for('pm_login'))
             return render_template('role_select.html')
 
-#Home route for login form
-@app.route('/')
-def home():
-            return render_template('login.html')
-
-      #check if the otp entered is valid
-@app.route('/otp_check', methods=['GET', 'POST'])
-def check_otp():
-            user_otp = request.form.get('otp')
-
-            if user_otp == session.get('otp'):
-                  return redirect(url_for('new_password'))
-            else:
-                  return 'Incorrect OTP. Please Try Again.'
 
 
-#new page that allows users to set up a new password:
-@app.route('/new_password', methods=[ 'GET', 'POST'])
-def create_password():
-         if request.method == 'POST':
-            new_password = request.form.get('new_password')
-            email = session.get('email')
-            hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
-        
-            return redirect(url_for('tm_login'))
+      #POST requests for login- checks for OTP instead of a password and redirects user to change it
+      @app.route('/tm_login', methods=['GET', 'POST'])
+      def tm_login():
+            if request.method == 'POST':
+                  username = request.form.get('username')
+                  password = request.form.get('password')
 
-         return render_template('new_password.html')
+                  user = db_session.query(User).filter_by(username=username, role = 'team_member').first()
+            
+                  if user and bcrypt.check_password_hash(user.password, password):
+                        return f'Welcome Team Member! Login succesful.'
+                  else:
+                        return 'Invalid username or password.Please try again.'
+            return render_template('tm_login.html')    
 
-# POST requests for login- checks for OTP instead of a password and redirects user to change it
-@app.route('/tm_login', methods=['GET', 'POST'])
-def tm_login():
-        if request.method == 'POST':
-            username = request.form.get('username')
-            password = request.form.get('password')
+      @app.route('/pm_login', methods=['GET','POST'])
+      def pm_login():
+            if request.method == 'POST':
+                  username = request.form.get('username')
+                  password = request.form.get('password')
 
-            email = request.form.get('username')
-            valid_password = request.form.get('password')
-        
-        if username == email and password == valid_password:
-            return f'Welcome Team Member! Login succesful.'
-        else:
-                return 'Invalid username or password.Please try again.'
-        
 
-@app.route('/pm_login', methods=['GET','POST'])
-def pm_login():
-        if request.method == 'POST':
-            username = request.form.get('username')
-            password = request.form.get('password')
 
-        if username == projectmanager and password == eyespy:
-            return f'Welcome Project Manager! Login succesful.'
-        else:
-                return 'Invalid username or password. Please try again.'
-        
+                  if username == "projectmanager" and password == "eyespy":
+                        return f'Welcome Project Manager! Login succesful.'
+                  else:
+                        return 'Invalid username or password. Please try again.'
+            return render_template('pm_login.html')
 
 
 

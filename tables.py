@@ -9,5 +9,5 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
     password = Column(String(200), nullable=False)
-    role = Column(String(20), nullable=False)  # 'team_member' or 'project_manager'
+    role = Column(String(20), nullable=False)  #'team_member' or 'project_manager'
 
