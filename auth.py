@@ -18,9 +18,13 @@ def generate_OTP():
 
 #Sends OTP email     
 def otp_email(user_email, otp):
-      msg = Message("One-Time Password for Registration", recipients=[user_email])
-      msg.body =f"Your one-time password is: {otp}\n This password will expire in 10 minutes."
-      mail.send(msg)
+      try:
+        msg = Message("One-Time Password for Registration", recipients=[user_email])
+        msg.body =f"Your one-time password is: {otp}\n This password will expire in 10 minutes."
+        mail.send(msg)
+      except Exception as e:
+            print(f"SMTP ERROR: {e}")
+            raise
 
 
 #Route registration
