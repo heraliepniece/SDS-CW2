@@ -7,10 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    <header>
-        <h1>Project Manager Dashboard</h1>
-    </header>
+    <h1>Project Manager Dashboard</h1>
 
     <main>
         <section id="project-status">
@@ -21,12 +18,11 @@
                     <tr>
                         <th>Project</th>
                         <th>Status</th>
-                        <th>Progress</th>
-                        <th>Team Performance</th>
+                        <th>Assigned To</th>
                     </tr>
                 </thead>
                 <tbody> 
-                    {% for task in task %}
+                    {% for task in tasks %}
                     <tr>
                         <td> {{ task.title }} </td>
                         <td> {{ task.status }} </td>
@@ -44,9 +40,9 @@
                 <input type="text" id="task" name="task" required><br><br>
 
                 <label for="assigned_to">Assign To:</label><br>
-                <select id="assigned_to" name="assigned_to">
+                <select id="assigned_to" name="assigned_to" required>
                     {% for member in team_members %}
-                    <option value="{{ member.username }}">{{ member.username }}</option>
+                    <option value="{{ member.id }}">{{ member.username }}</option>
                     {% endfor %}
                 </select><br><br>
                 <button type="submit">Create Task</button>
@@ -55,14 +51,13 @@
 
     <section id="manage-team">
         <h2>Manage Team Members</h2>
-        <p>Add, update, or remove team members.</p>
+        <p>Add or remove team members.</p>
 
         
         <form action="{{ url_for('add_user') }}" method="POST" style="margin-bottom: 1rem;">
             <label for="username">Username:</label>
             <input type="text" name="username" required>
 
-            <label for="role">Role: Team Member</label>
             <label for="password">Password:</label>
             <input type="password" name="password" required>
 
@@ -82,7 +77,7 @@
                 {% for member in team_members %}
                 <tr>
                     <td>{{ member.username }}</td>
-                    <td>{{ member.role }}</td>
+                    <td>Team Member</td>
                     <td>
                         <form action="{{ url_for('remove_user', user_id=member.id) }}" method="POST" style="display:inline;">
                             <button type="submit">Remove</button>
@@ -118,7 +113,6 @@
         </table>
         </section>
         <a class="logout" href="{{ url_for('pm_login') }}">Logout</a>
-    </div>
     </main>
 
 </body>

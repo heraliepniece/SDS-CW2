@@ -32,19 +32,6 @@
             {% endif %}
         </section>
 
-        <section class="dashboard-section">
-            <h2>Recent Activity</h2>
-            {% if activity_log %}
-                <ul>
-                    {% for activity in activity_log %}
-                        <li>{{ activity.timestamp }} - {{ activity.description }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No recent activity.</p>
-            {% endif %}
-        </section>
-
         <a class="logout" href="{{ url_for('tm_login') }}">Logout</a>
     </div>
 </body>
