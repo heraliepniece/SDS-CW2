@@ -53,18 +53,32 @@
             </form>
         </section>
 
-        <section id="manage-team">
-            <h2>Manage Team Members</h2>
-            <p>Add, update, or remove team members.</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                    <tbody>
+    <section id="manage-team">
+        <h2>Manage Team Members</h2>
+        <p>Add, update, or remove team members.</p>
+
+        
+        <form action="{{ url_for('add_user') }}" method="POST" style="margin-bottom: 1rem;">
+            <label for="username">Username:</label>
+            <input type="text" name="username" required>
+
+            <label for="role">Role: Team Member</label>
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+
+            <button type="submit">Add User</button>
+        </form>
+
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for member in team_members %}
                 <tr>
                     <td>{{ member.username }}</td>
@@ -73,15 +87,13 @@
                         <form action="{{ url_for('remove_user', user_id=member.id) }}" method="POST" style="display:inline;">
                             <button type="submit">Remove</button>
                         </form>
-                        <form action="{{ url_for('edit_user', user_id=member.id) }}" method="GET" style="display:inline;">
-                            <button type="submit">Edit</button>
-                        </form>
                     </td>
                 </tr>
                 {% endfor %}
-                </tbody>
-            </table>
-        </section>
+            </tbody>
+        </table>
+    </section>
+
 
         <section id="activity-logs">
             <h2>Team Activity Logs</h2>
@@ -92,7 +104,6 @@
                 <th>Username</th>
                 <th>Activity</th>
                 <th>Status</th>
-                <th>Last Updated</th>
             </tr>
         </thead>
         <tbody>

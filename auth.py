@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from flask_mail import Mail, Message
 from flask_bcrypt import Bcrypt
 import secrets
@@ -136,11 +136,10 @@ def register_routes(app, db_session):
                   title = request.form.get('task')
                   assigned_to = request.form.get('assigned_to')
 
-                  user = db_session.query(User).filter_by(username=assigned_to, role='team_member').first()
+                  user = db_session.query(User).filter_by(username=assigned_to, role='Team Member').first()
 
                   if user:
                         new_task = Task(title=title,
-                        description="Task assigned by PM", 
                         status="Not Started",  #Default status
                         assigned_to=user.id)
                         db_session.add(new_task)
@@ -149,7 +148,7 @@ def register_routes(app, db_session):
                   #redirect back to the pm dashboard
                   return redirect(url_for('pm_dashboard'))
 
-            team_members = db_session.query(User).filter_by(role='team_member').all()
+            team_members = db_session.query(User).filter_by(role='Team Member').all()
             tasks = db_session.query(Task).all()
     
             return render_template('pm_dashboard.html', team_members=team_members, tasks=tasks)
@@ -173,6 +172,42 @@ def register_routes(app, db_session):
                   db_session.commit()
 
             return redirect(url_for('tm_dashboard'))
+      
+      @app.route('/remove_user/<int:user_id>', methods=['POST'])
+      def remove_user(user_id):
+            user = db_session.query(User).get(user_id)
+            if user:
+                  db_session.delete(user)
+                  db_session.commit()
+            else:
+                  flash('User not found.', 'error')
+            return redirect(url_for('pm_dashboard'))
+
+      
+      @app.route('/add_user', methods=['POST'])
+      def add_user():
+            username = request.form['username']
+            role = 'Team Member'
+            password = request.form['password']
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            existing_user = db_session.query(User).filter_by(username=username).first()
+            if existing_user:
+                  flash('User with this username already exists.', 'error')
+                  return redirect(url_for('pm_dashboard'))
+
+            new_user = User(username=username, role=role, password=hashed_password)
+            db_session.add(new_user)
+            db_session.commit()
+
+            return redirect(url_for('pm_dashboard'))
+      
+      
+
+
+
+
+
 
 
       
