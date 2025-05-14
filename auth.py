@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, session, flash, get_flashed_messages 
 from flask_mail import Mail, Message
 from flask_bcrypt import Bcrypt
 import secrets
@@ -81,8 +81,10 @@ def register_routes(app, db_session):
             if request.method =="POST":
                   user_otp = request.form.get('otp')
                   if user_otp == session.get('otp'):
+                        logger.info(f"OTP succesfully verified for user: {session.get('email')}")
                         return redirect(url_for('create_password'))
                   else:
+                        logger.warning("User Entered Incorrect OTP")
                         return 'Incorrect OTP. Please Try Again.'
             return render_template('otp_check.html')
 
@@ -106,19 +108,25 @@ def register_routes(app, db_session):
                               elif char.islower():
                                     lower = True
                   else:
-                        print('Password must be between 8 and 20 characters', 'error')
-                        return redirect(url_for('create_password'))
+                       flash('Password must be between 8 and 20 characters.', 'error')
+                       logger.warning("Password length requirement not met: %s", username)
+                       return redirect(url_for('create_password'))
                   
                   if not (upper and lower and digit):
-                        print('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                        flash('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                        logger.warning("Password complexity requirement not met: %s", username)
                         return redirect(url_for('create_password'))
                   
                   exists = db_session.query(User).filter_by(username=username).first()
                   if exists:
-                        print('Username already exists!')
+                        flash('Username already exists! Please try again.', 'error')
+                        logger.error("Attempted registration with existing username: %s", username)
                         return redirect(url_for('create_password'))
 
 
+                  #if successfull
+                  flash('Your password has successfully been set. Please log in.', 'success')
+                  logger.info("New user created: %s with role %s", username, role)
 
                   hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
                   user = User(username=username, password = hashed_password, role = role)
@@ -135,8 +143,11 @@ def register_routes(app, db_session):
                   role_selection = request.form.get('role_select')
                   session['role_select'] = role_selection
                   if role_selection == 'team_member':
+                        logger.info("User selected role: Team Member")
                         return redirect(url_for('tm_login'))
+                  
                   elif role_selection == 'project_manager':
+                        logger.info("User selected role: Project Manager")
                         return redirect(url_for('pm_login'))
             return render_template('role_select.html')
 
@@ -151,8 +162,10 @@ def register_routes(app, db_session):
                   user = db_session.query(User).filter_by(username=username, role = 'team_member').first()
             
                   if user and bcrypt.check_password_hash(user.password, password):
+                        logger.info(f"Team member '{username}' logged in successfully.")
                         return redirect(url_for('tm_dashboard'))
                   else:
+                        logger.error("Wrong Username or Password Entered")
                         return 'Invalid username or password. Please try again.'
             return render_template('tm_login.html')    
 
@@ -164,8 +177,10 @@ def register_routes(app, db_session):
 
 
                   if username == "projectmanager" and password == "eyespy":
+                        logger.info(f"Project manager logged in successfully.")
                         return redirect(url_for('pm_dashboard'))
                   else:
+                        logger.error("Wrong Username or Password Entered")
                         return 'Invalid username or password. Please try again.'
             return render_template('pm_login.html')
       
