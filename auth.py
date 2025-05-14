@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for
 from flask_mail import Mail, Message
 from flask_bcrypt import Bcrypt
 import secrets
@@ -94,8 +94,33 @@ def register_routes(app, db_session):
                   new_password = request.form.get('new_password')
                   username = session.get('email')
                   role = session.get('role_select')
+
+                  
+                  upper = lower = digit = False
+                  if 8 <= len(new_password) <= 20:
+                        for char in new_password:
+                              if char.isdigit():
+                                    digit = True
+                              elif char.isupper():
+                                    upper = True
+                              elif char.islower():
+                                    lower = True
+                  else:
+                        print('Password must be between 8 and 20 characters', 'error')
+                        return redirect(url_for('create_password'))
+                  
+                  if not (upper and lower and digit):
+                        print('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                        return redirect(url_for('create_password'))
+                  
+                  exists = db_session.query(User).filter_by(username=username).first()
+                  if exists:
+                        print('Username already exists!')
+                        return redirect(url_for('create_password'))
+
+
+
                   hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
-            
                   user = User(username=username, password = hashed_password, role = role)
                   db_session.add(user)
                   db_session.commit()
@@ -146,7 +171,105 @@ def register_routes(app, db_session):
       
       @app.route('/pm_dashboard')
       def pm_dashboard():
-            return render_template('pm_dashboard.html')
+            if request.method == 'POST':
+                  title = request.form.get('task')
+                  assigned_to = request.form.get('assigned_to')
+
+                  user = db_session.query(User).get(int(assigned_to))
+
+                  if user:
+                        new_task = Task(title=title,
+                        status="Not Started",  #Default status
+                        assigned_to=user.id)
+                        db_session.add(new_task)
+                        db_session.commit()
+
+                  #redirect back to the pm dashboard
+                  return redirect(url_for('pm_dashboard'))
+
+            team_members = db_session.query(User).filter_by(role='team_member').all()
+            tasks = db_session.query(Task).all()
+    
+            return render_template('pm_dashboard.html', team_members=team_members, tasks=tasks)
+
+      @app.route('/dashboard')
+      def tm_dashboard():
+            if 'user_id' not in session:
+                  return redirect(url_for('tm_login'))
+
+            user = db_session.query(User).get(session['user_id'])
+            tasks = db_session.query(Task).filter_by(assigned_to=user.id).all()
+            return render_template('tm_dashboard.html', user=user, tasks=tasks)
+      
+      @app.route('/update_task_status/<int:task_id>', methods=['POST'])
+      def update_task_status(task_id):
+            new_status = request.form.get('status')
+    
+            task = db_session.query(Task).get(task_id)
+            if task:
+                  task.status = new_status
+                  db_session.commit()
+
+            return redirect(url_for('tm_dashboard'))
+      
+      @app.route('/remove_user/<int:user_id>', methods=['POST'])
+      def remove_user(user_id):
+            user = db_session.query(User).get(user_id)
+            if user:
+                  db_session.delete(user)
+                  db_session.commit()
+            else:
+                  print('User not found.', 'error')
+            return redirect(url_for('pm_dashboard'))
+
+      
+      @app.route('/add_user', methods=['POST'])
+      def add_user():
+            username = request.form['username']
+            role = 'team_member'
+            password = request.form['password']
+
+            upper = lower = digit = False
+            if 8 <= len(password) <= 20:
+                  for char in password:
+                        if char.isdigit():
+                              digit = True
+                        elif char.isupper():
+                              upper = True
+                        elif char.islower():
+                              lower = True
+            else:
+                  print('Password must be between 8 and 20 characters', 'error')
+                  return redirect(url_for('pm_dashboard'))
+            
+            if not (upper and lower and digit):
+                  print('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                  return redirect(url_for('pm_dashboard'))
+
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            existing_user = db_session.query(User).filter_by(username=username).first()
+            if existing_user:
+                  print('User with this username already exists.', 'error')
+                  return redirect(url_for('pm_dashboard'))
+
+            new_user = User(username=username, role=role, password=hashed_password)
+            db_session.add(new_user)
+            db_session.commit()
+
+            return redirect(url_for('pm_dashboard'))
+      
+      
+
+
+
+
+
+
+
+      
+
+
 
       @app.errorhandler(Exception)
       def handle_exception(e):
