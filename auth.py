@@ -28,7 +28,7 @@ def otp_email(user_email, otp):
             raise
 
 
-#Route registration
+#Routes
 def register_routes(app, db_session):
       #Setting up email 
       app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -79,6 +79,26 @@ def register_routes(app, db_session):
                   new_password = request.form.get('new_password')
                   username = session.get('email')
                   role = session.get('role_select')
+
+                  
+                  upper = lower = digit = False
+                  if 8 <= len(new_password) <= 20:
+                        for char in new_password:
+                              if char.isdigit():
+                                    digit = True
+                              elif char.isupper():
+                                    upper = True
+                              elif char.islower():
+                                    lower = True
+                  else:
+                        flash('Password must be between 8 and 20 characters', 'error')
+                        return redirect(url_for('tm_login'))
+                  
+                  if not (upper and lower and digit):
+                        flash('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                        return redirect(url_for('tm_login'))
+
+
                   hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
             
                   user = User(username=username, password = hashed_password, role = role)
@@ -189,6 +209,24 @@ def register_routes(app, db_session):
             username = request.form['username']
             role = 'Team Member'
             password = request.form['password']
+
+            upper = lower = digit = False
+            if 8 <= len(password) <= 20:
+                  for char in password:
+                        if char.isdigit():
+                              digit = True
+                        elif char.isupper():
+                              upper = True
+                        elif char.islower():
+                              lower = True
+            else:
+                  flash('Password must be between 8 and 20 characters', 'error')
+                  return redirect(url_for('pm_dashboard'))
+            
+            if not (upper and lower and digit):
+                  flash('Password must contain at least one uppercase letter, one lowercase letter, and one number.', 'error')
+                  return redirect(url_for('pm_dashboard'))
+
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
             existing_user = db_session.query(User).filter_by(username=username).first()
